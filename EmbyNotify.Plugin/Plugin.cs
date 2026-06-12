@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using EmbyNotify.Plugin.Configuration;
@@ -7,6 +8,7 @@ using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Controller;
 using MediaBrowser.Controller.Session;
+using MediaBrowser.Model.Drawing;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Plugins;
 using MediaBrowser.Model.Serialization;
@@ -14,7 +16,7 @@ using MediaBrowser.Model.Session;
 
 namespace EmbyNotify.Plugin
 {
-    public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
+    public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages, IHasThumbImage
     {
         private readonly IServerApplicationHost _applicationHost;
         private readonly ILogger _logger;
@@ -37,6 +39,11 @@ namespace EmbyNotify.Plugin
         public override Guid Id => new Guid("3c8f1e2a-4b7d-4e9f-a0c5-d6e7f8091b2c");
         public override string Description => "Broadcast custom messages to all active Emby sessions from the plugin config page.";
 
+        public Stream GetThumbImage() =>
+            GetType().Assembly.GetManifestResourceStream("EmbyNotify.Plugin.thumb.png");
+
+        public ImageFormat ThumbImageFormat => ImageFormat.Png;
+
         public IEnumerable<PluginPageInfo> GetPages()
         {
             return new[]
@@ -44,7 +51,13 @@ namespace EmbyNotify.Plugin
                 new PluginPageInfo
                 {
                     Name = "EmbyNotify",
-                    EmbeddedResourcePath = $"{GetType().Namespace}.Configuration.Web.config.html"
+                    EmbeddedResourcePath = $"{GetType().Namespace}.Configuration.Web.config.html",
+                    IsMainConfigPage = true
+                },
+                new PluginPageInfo
+                {
+                    Name = "embynotifyconfig",
+                    EmbeddedResourcePath = $"{GetType().Namespace}.Configuration.Web.config.js"
                 }
             };
         }
