@@ -8,8 +8,16 @@
     "overview": "Broadcast messages to all active Emby sessions.",
     "owner": "sftech13",
     "targetAbi": "4.8.0.0",
-    "timestamp": "2026-06-12T00:00:00Z",
+    "timestamp": "2026-06-12T21:54:27Z",
     "versions": [
+      {
+        "changelog": "- feat: add self-update mechanism via GitHub Releases API - chore: add plugin manifest and auto-update workflow - v1.1.0: fix config page for Emby 4.9, add plugin logo - ci: add GitHub Actions release workflow - docs: add README, CHANGELOG, and DEVLOG - chore: remove obj/ from tracking, update gitignore - v1.0.0: initial release — broadcast messages to all active Emby sessions ",
+        "checksum": "0127fcafd996909ee8ef8f306eb1bd11",
+        "sourceUrl": "https://github.com/sftech13/embynotify/releases/download/v1.2.0/EmbyNotify.Plugin.dll",
+        "targetAbi": "4.8.0.0",
+        "timestamp": "2026-06-12T21:54:27Z",
+        "version": "1.2.0.0"
+      },
       {
         "changelog": "Fix config page for Emby 4.9 view controller architecture. Add plugin logo.",
         "checksum": "9089147d755526db3de5193e4c04f7ea",
