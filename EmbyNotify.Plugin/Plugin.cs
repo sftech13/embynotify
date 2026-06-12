@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using EmbyNotify.Plugin.Configuration;
@@ -108,6 +110,93 @@ namespace EmbyNotify.Plugin
                 result.Error = ex.Message;
             }
 
+            return result;
+        }
+
+        internal async Task<InstallUpdateResult> InstallUpdateAsync()
+        {
+            var result = new InstallUpdateResult();
+            try
+            {
+                UpdateChecker.InvalidateCache();
+                var check = await UpdateChecker.CheckAsync().ConfigureAwait(false);
+
+                if (!check.UpdateAvailable)
+                {
+                    result.Message = "No update available.";
+                    return result;
+                }
+
+                if (string.IsNullOrEmpty(check.DownloadUrl))
+                {
+                    result.Message = "No download URL found in release.";
+                    return result;
+                }
+
+                var currentDll = typeof(Plugin).Assembly.Location;
+                if (string.IsNullOrEmpty(currentDll) || !File.Exists(currentDll))
+                    currentDll = Path.Combine(ApplicationPaths.PluginsPath, "EmbyNotify.Plugin.dll");
+
+                if (!File.Exists(currentDll))
+                {
+                    result.Message = "Could not locate plugin DLL.";
+                    return result;
+                }
+
+                var tempPath = currentDll + ".temp";
+                var bakPath  = currentDll + ".bak";
+
+                byte[] dllBytes;
+                using (var http = new HttpClient())
+                {
+                    http.DefaultRequestHeaders.UserAgent.ParseAdd("EmbyNotify-Plugin/1.0");
+                    http.Timeout = TimeSpan.FromSeconds(60);
+                    dllBytes = await http.GetByteArrayAsync(check.DownloadUrl).ConfigureAwait(false);
+                }
+
+                if (dllBytes.Length < 1024)
+                {
+                    result.Message = $"Downloaded file too small ({dllBytes.Length} bytes). Aborting.";
+                    return result;
+                }
+
+                File.WriteAllBytes(tempPath, dllBytes);
+                try
+                {
+                    if (File.Exists(bakPath)) File.Delete(bakPath);
+                    File.Move(currentDll, bakPath);
+                    File.Move(tempPath, currentDll);
+                    try { File.Delete(bakPath); } catch { }
+                }
+                catch
+                {
+                    try { if (File.Exists(bakPath) && !File.Exists(currentDll)) File.Move(bakPath, currentDll); } catch { }
+                    try { File.Delete(tempPath); } catch { }
+                    throw;
+                }
+
+                UpdateChecker.InvalidateCache();
+
+                try
+                {
+                    var notifyMethod = _applicationHost.GetType().GetMethod(
+                        "NotifyPendingRestart",
+                        BindingFlags.Public | BindingFlags.Instance);
+                    notifyMethod?.Invoke(_applicationHost, null);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn("EmbyNotify: NotifyPendingRestart failed: {0}", ex.Message);
+                }
+
+                result.Success = true;
+                result.Message = $"Updated to v{check.LatestVersion} ({dllBytes.Length:N0} bytes). Restart Emby to apply.";
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("EmbyNotify InstallUpdate failed: {0}", ex.Message);
+                result.Message = "Install failed: " + ex.Message;
+            }
             return result;
         }
     }

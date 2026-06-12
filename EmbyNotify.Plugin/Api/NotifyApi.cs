@@ -21,6 +21,14 @@ namespace EmbyNotify.Plugin.Api
         public string Error { get; set; }
     }
 
+    [Authenticated(Roles = "Admin")]
+    [Route("/EmbyNotify/CheckUpdate", "POST", Summary = "Check GitHub for the latest plugin release")]
+    public class CheckUpdate : IReturn<UpdateCheckResult> { }
+
+    [Authenticated(Roles = "Admin")]
+    [Route("/EmbyNotify/InstallUpdate", "POST", Summary = "Download and atomically install the latest plugin release")]
+    public class InstallUpdate : IReturn<InstallUpdateResult> { }
+
     public class NotifyApi : IService, IRequiresRequest
     {
         public IRequest Request { get; set; }
@@ -43,6 +51,17 @@ namespace EmbyNotify.Plugin.Api
                         : "No active sessions found",
                 Error = result.Error
             };
+        }
+
+        public async Task<object> Post(CheckUpdate request)
+        {
+            UpdateChecker.InvalidateCache();
+            return await UpdateChecker.CheckAsync().ConfigureAwait(false);
+        }
+
+        public async Task<object> Post(InstallUpdate request)
+        {
+            return await Plugin.Instance.InstallUpdateAsync().ConfigureAwait(false);
         }
     }
 }
