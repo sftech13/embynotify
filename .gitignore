@@ -1,4 +1,6 @@
 artifacts/
+**/obj/
+**/bin/
 *.user
 .vs/
 .idea/
