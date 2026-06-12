@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -36,7 +37,6 @@ jobs:
             -p:Version=$VERSION
 
       - name: Generate release notes
-        id: notes
         run: |
           PREV_TAG=$(git tag --sort=-v:refname | grep '^v' | sed -n '2p')
           if [ -z "$PREV_TAG" ]; then
@@ -54,6 +54,39 @@ jobs:
               echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${{ github.ref_name }}"
             fi
           } > release_notes.md
+
+      - name: Update manifest.json
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          VERSION_4PART="${VERSION}.0"
+          CHECKSUM=$(md5sum artifacts/publish/EmbyNotify.Plugin.dll | cut -d' ' -f1)
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          SOURCE_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/EmbyNotify.Plugin.dll"
+          CHANGELOG=$(git log --no-merges --pretty=format:"- %s" ${PREV_TAG:+${PREV_TAG}..}HEAD | grep -v "Co-Authored-By" | head -10 | tr '\n' ' ')
+
+          jq --arg ver   "$VERSION_4PART" \
+             --arg cs    "$CHECKSUM" \
+             --arg url   "$SOURCE_URL" \
+             --arg ts    "$TIMESTAMP" \
+             --arg log   "$CHANGELOG" \
+             '.[0].timestamp = $ts |
+              .[0].versions = ([{
+                changelog: $log,
+                checksum:  $cs,
+                sourceUrl: $url,
+                targetAbi: "4.8.0.0",
+                timestamp: $ts,
+                version:   $ver
+              }] + (.[0].versions | map(select(.version != $ver))))' \
+             manifest.json > manifest_new.json && mv manifest_new.json manifest.json
+
+      - name: Commit updated manifest
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git diff --cached --quiet || git commit -m "chore: update manifest for ${{ github.ref_name }}"
+          git push origin HEAD:main
 
       - name: Create release
         uses: softprops/action-gh-release@v2
