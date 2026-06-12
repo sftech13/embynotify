@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "AWRadWEtmdlaPZH1jAp1EQb0Vd9p5JRIoR1OpEpvrCnlKQT8vzXkQo5bqrd/rkK7DB1hCJ5YXyaDVvfLxJ7R3g==",
+  "success": true,
+  "projectFilePath": "/home/sftech13/scripts/EmbyNotify/EmbyNotify.Plugin/EmbyNotify.Plugin.csproj",
+  "expectedPackageFiles": [
+    "/home/sftech13/.nuget/packages/mediabrowser.common/4.8.0.80/mediabrowser.common.4.8.0.80.nupkg.sha512",
+    "/home/sftech13/.nuget/packages/mediabrowser.server.core/4.8.0.80/mediabrowser.server.core.4.8.0.80.nupkg.sha512",
+    "/home/sftech13/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "/home/sftech13/.nuget/packages/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

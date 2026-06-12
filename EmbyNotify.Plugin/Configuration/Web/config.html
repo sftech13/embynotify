@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>EmbyNotify</title>
+</head>
+<body>
+  <div id="EmbyNotifyConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-textarea">
+    <div data-role="content">
+      <div class="content-primary">
+
+        <div class="verticalSection">
+          <div class="sectionTitleContainer">
+            <h2 class="sectionTitle">Broadcast Message</h2>
+          </div>
+          <p style="color:var(--text-color-secondary,#aaa);margin:0 0 1.5em;">
+            Send a popup message to all users currently active in Emby.
+          </p>
+        </div>
+
+        <div class="verticalSection">
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="notifyHeader">Header</label>
+            <input id="notifyHeader" type="text" is="emby-input" value="Announcement" maxlength="80" />
+            <div class="fieldDescription">Short title shown at the top of the popup.</div>
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="notifyText">Message</label>
+            <textarea id="notifyText" is="emby-textarea" rows="4" style="width:100%;box-sizing:border-box;" placeholder="Type your message here..."></textarea>
+            <div class="fieldDescription">The body of the notification popup.</div>
+          </div>
+
+          <div class="inputContainer">
+            <label class="inputLabel inputLabelUnfocused" for="notifyTimeout">Auto-dismiss (seconds)</label>
+            <input id="notifyTimeout" type="number" is="emby-input" value="0" min="0" max="300" style="width:120px;" />
+            <div class="fieldDescription">0 = stays until the user dismisses it. Any other value auto-closes after that many seconds.</div>
+          </div>
+        </div>
+
+        <div class="verticalSection">
+          <button id="btnSend" is="emby-button" type="button" class="raised button-submit block" style="max-width:220px;">
+            <span>Send to All Sessions</span>
+          </button>
+        </div>
+
+        <div id="notifyStatus" style="margin-top:1em;padding:0.75em 1em;border-radius:4px;display:none;"></div>
+
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      (function () {
+        var page = document.getElementById('EmbyNotifyConfigPage');
+
+        function showStatus(msg, isError) {
+          var el = document.getElementById('notifyStatus');
+          el.textContent = msg;
+          el.style.display = 'block';
+          el.style.background = isError ? 'rgba(180,30,30,0.25)' : 'rgba(30,140,30,0.25)';
+          el.style.color = isError ? '#ff6b6b' : '#7ddc7d';
+          el.style.border = isError ? '1px solid rgba(180,30,30,0.5)' : '1px solid rgba(30,140,30,0.5)';
+        }
+
+        function onSendClick() {
+          var header  = document.getElementById('notifyHeader').value.trim() || 'Announcement';
+          var text    = document.getElementById('notifyText').value.trim();
+          var seconds = parseInt(document.getElementById('notifyTimeout').value, 10) || 0;
+
+          if (!text) {
+            showStatus('Please enter a message before sending.', true);
+            return;
+          }
+
+          var btn = document.getElementById('btnSend');
+          btn.disabled = true;
+          btn.querySelector('span').textContent = 'Sending...';
+
+          ApiClient.ajax({
+            type: 'POST',
+            url: ApiClient.getUrl('/EmbyNotify/Send'),
+            data: JSON.stringify({ Header: header, Text: text, TimeoutMs: seconds * 1000 }),
+            contentType: 'application/json'
+          }).then(function (result) {
+            btn.disabled = false;
+            btn.querySelector('span').textContent = 'Send to All Sessions';
+            showStatus(result.Status || 'Sent.', !!result.Error);
+          }).catch(function (err) {
+            btn.disabled = false;
+            btn.querySelector('span').textContent = 'Send to All Sessions';
+            showStatus('Request failed: ' + (err.statusText || err), true);
+          });
+        }
+
+        page.addEventListener('pageshow', function () {
+          document.getElementById('btnSend').addEventListener('click', onSendClick);
+        });
+      })();
+    </script>
+  </div>
+</body>
+</html>
