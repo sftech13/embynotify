@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaBrowser.Controller.Net;
 using MediaBrowser.Model.Services;
@@ -28,6 +29,17 @@ namespace EmbyNotify.Plugin.Api
     [Authenticated(Roles = "Admin")]
     [Route("/EmbyNotify/InstallUpdate", "POST", Summary = "Download and atomically install the latest plugin release")]
     public class InstallUpdate : IReturn<InstallUpdateResult> { }
+
+    [Authenticated(Roles = "Admin")]
+    [Route("/EmbyNotify/Notifications", "GET", Summary = "List all notifications with per-user delivery status")]
+    public class GetNotifications : IReturn<List<PendingNotification>> { }
+
+    [Authenticated(Roles = "Admin")]
+    [Route("/EmbyNotify/Notifications/{Id}", "DELETE", Summary = "Dismiss a notification")]
+    public class DismissNotification : IReturn<object>
+    {
+        public string Id { get; set; }
+    }
 
     public class NotifyApi : IService, IRequiresRequest
     {
@@ -62,6 +74,17 @@ namespace EmbyNotify.Plugin.Api
         public async Task<object> Post(InstallUpdate request)
         {
             return await Plugin.Instance.InstallUpdateAsync().ConfigureAwait(false);
+        }
+
+        public object Get(GetNotifications request)
+        {
+            return Plugin.Instance.Store.GetAll();
+        }
+
+        public object Delete(DismissNotification request)
+        {
+            Plugin.Instance.Store.Dismiss(request.Id);
+            return new { Success = true };
         }
     }
 }
