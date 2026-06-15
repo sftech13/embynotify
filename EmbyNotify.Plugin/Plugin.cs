@@ -24,6 +24,7 @@ namespace EmbyNotify.Plugin
         private readonly ILogger _logger;
 
         public static Plugin Instance { get; private set; }
+        public NotificationStore Store { get; private set; }
 
         public Plugin(
             IApplicationPaths appPaths,
@@ -35,6 +36,7 @@ namespace EmbyNotify.Plugin
             Instance = this;
             _applicationHost = applicationHost;
             _logger = logManager.GetLogger(nameof(Plugin));
+            Store = new NotificationStore(appPaths, logManager);
         }
 
         public override string Name => "EmbyNotify";
@@ -83,18 +85,25 @@ namespace EmbyNotify.Plugin
                     return result;
                 }
 
+                // Record the notification — delivery tracking starts here
+                var normalizedHeader = string.IsNullOrWhiteSpace(header) ? "Announcement" : header;
+                var notification = Store.Add(normalizedHeader, text ?? "", timeoutMs);
+                result.NotificationId = notification.Id;
+
                 var command = new MessageCommand
                 {
-                    Header = string.IsNullOrWhiteSpace(header) ? "Announcement" : header,
-                    Text = text ?? "",
+                    Header    = normalizedHeader,
+                    Text      = text ?? "",
                     TimeoutMs = timeoutMs
                 };
 
                 foreach (var session in sessions)
                 {
+                    if (string.IsNullOrEmpty(session.UserId)) continue;
                     try
                     {
                         await sessionManager.SendMessageCommand(session.Id, session.Id, command, CancellationToken.None).ConfigureAwait(false);
+                        Store.MarkDelivered(notification.Id, session.UserId, session.UserName ?? session.UserId);
                         result.SessionsMessaged++;
                     }
                     catch (Exception ex)
@@ -205,6 +214,7 @@ namespace EmbyNotify.Plugin
     {
         public int SessionsMessaged { get; set; }
         public int SessionsFailed { get; set; }
+        public string NotificationId { get; set; }
         public string Error { get; set; }
     }
 }
