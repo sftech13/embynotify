@@ -8,8 +8,16 @@
     "overview": "Broadcast messages to all active Emby sessions.",
     "owner": "sftech13",
     "targetAbi": "4.8.0.0",
-    "timestamp": "2026-06-15T17:13:50Z",
+    "timestamp": "2026-06-15T17:37:18Z",
     "versions": [
+      {
+        "changelog": "- fix: make notification store best-effort, fix session send and message format - chore: update manifest for v1.3.0 - feat: add deferred notification delivery with per-user tracking - chore: update manifest for v1.2.0 - feat: add self-update mechanism via GitHub Releases API - chore: add plugin manifest and auto-update workflow - v1.1.0: fix config page for Emby 4.9, add plugin logo - ci: add GitHub Actions release workflow - docs: add README, CHANGELOG, and DEVLOG - chore: remove obj/ from tracking, update gitignore ",
+        "checksum": "2c7119d7fe9f6db35db17b9b7b967034",
+        "sourceUrl": "https://github.com/sftech13/embynotify/releases/download/v1.4.0/EmbyNotify.Plugin.dll",
+        "targetAbi": "4.8.0.0",
+        "timestamp": "2026-06-15T17:37:18Z",
+        "version": "1.4.0.0"
+      },
       {
         "changelog": "- feat: add deferred notification delivery with per-user tracking - chore: update manifest for v1.2.0 - feat: add self-update mechanism via GitHub Releases API - chore: add plugin manifest and auto-update workflow - v1.1.0: fix config page for Emby 4.9, add plugin logo - ci: add GitHub Actions release workflow - docs: add README, CHANGELOG, and DEVLOG - chore: remove obj/ from tracking, update gitignore - v1.0.0: initial release — broadcast messages to all active Emby sessions ",
         "checksum": "06e2469af48678535ce04d1265c6aff0",
