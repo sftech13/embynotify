@@ -32,8 +32,8 @@ namespace EmbyNotify.Plugin
             var store = Plugin.Instance?.Store;
             if (store == null) return;
 
-            // Brief delay to let the client fully connect before sending
-            await Task.Delay(3000).ConfigureAwait(false);
+            // Wait for the client UI to fully initialize after the session is established
+            await Task.Delay(10000).ConfigureAwait(false);
 
             var pending = store.GetActiveUndeliveredFor(session.UserId);
             if (pending.Count == 0) return;
