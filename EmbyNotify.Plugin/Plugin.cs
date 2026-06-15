@@ -85,10 +85,19 @@ namespace EmbyNotify.Plugin
                     return result;
                 }
 
-                // Record the notification — delivery tracking starts here
                 var normalizedHeader = string.IsNullOrWhiteSpace(header) ? "Announcement" : header;
-                var notification = Store.Add(normalizedHeader, text ?? "", timeoutMs);
-                result.NotificationId = notification.Id;
+
+                // Record for deferred delivery — best-effort, never blocks the send
+                PendingNotification notification = null;
+                try
+                {
+                    notification = Store.Add(normalizedHeader, text ?? "", timeoutMs);
+                    result.NotificationId = notification.Id;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn("EmbyNotify: notification store unavailable, continuing send: {0}", ex.Message);
+                }
 
                 var command = new MessageCommand
                 {
@@ -99,12 +108,15 @@ namespace EmbyNotify.Plugin
 
                 foreach (var session in sessions)
                 {
-                    if (string.IsNullOrEmpty(session.UserId)) continue;
                     try
                     {
                         await sessionManager.SendMessageCommand(session.Id, session.Id, command, CancellationToken.None).ConfigureAwait(false);
-                        Store.MarkDelivered(notification.Id, session.UserId, session.UserName ?? session.UserId);
                         result.SessionsMessaged++;
+                        if (notification != null && !string.IsNullOrEmpty(session.UserId))
+                        {
+                            try { Store.MarkDelivered(notification.Id, session.UserId, session.UserName ?? session.UserId); }
+                            catch { }
+                        }
                     }
                     catch (Exception ex)
                     {
