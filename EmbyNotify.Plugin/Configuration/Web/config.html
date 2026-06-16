@@ -9,6 +9,30 @@
 
   <div class="scrollSlider flex-grow flex-direction-column padded-left padded-left-page padded-right padded-top-page padded-bottom-page">
 
+    <div style="border:1px solid rgba(0,164,220,0.25);border-radius:8px;padding:1.1em 1.2em;background:rgba(0,164,220,0.05);">
+      <div style="display:flex;align-items:center;gap:.5em;margin-bottom:.8em;">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;opacity:.7;">
+          <path d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z" fill="#00a4dc"/>
+          <path d="M8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4zm0 7.25a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" fill="#00a4dc"/>
+        </svg>
+        <h3 style="margin:0;font-size:.95em;color:var(--text-color-secondary,#aaa);letter-spacing:.02em;">Plugin Updates</h3>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75em;flex-wrap:wrap;">
+        <button class="btnCheckUpdate raised button-submit" type="button"
+                style="padding:.45em 1.1em;font-size:.9em;cursor:pointer;">
+          Check for Updates
+        </button>
+        <button class="btnInstallUpdate raised button-submit" type="button"
+                style="padding:.45em 1.1em;font-size:.9em;cursor:pointer;display:none;">
+          &#8659; Install Update
+        </button>
+      </div>
+      <div class="updateStatus"
+           style="margin-top:.75em;padding:.65em .9em;border-radius:4px;font-size:.9em;display:none;"></div>
+    </div>
+
+    <hr style="margin:2em 0;border:none;border-top:1px solid rgba(255,255,255,0.1);" />
+
     <h2 class="sectionTitle" style="margin-bottom:.4em;">Broadcast Message</h2>
     <p style="color:var(--text-color-secondary,#aaa);margin:0 0 1.5em;">
       Send a popup message to all users currently active in Emby.
@@ -42,21 +66,12 @@
 
     <hr style="margin:2em 0;border:none;border-top:1px solid rgba(255,255,255,0.1);" />
 
-    <h3 style="margin:0 0 .6em;font-size:1em;opacity:.7;">Plugin Updates</h3>
-
-    <div style="display:flex;align-items:center;gap:1em;flex-wrap:wrap;margin-bottom:.75em;">
-      <button class="btnCheckUpdate" type="button"
-              style="padding:.5em 1.2em;font-size:.95em;cursor:pointer;">
-        Check for Updates
-      </button>
-      <button class="btnInstallUpdate" type="button"
-              style="padding:.5em 1.2em;font-size:.95em;cursor:pointer;display:none;">
-        Install Update
-      </button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8em;">
+      <h3 style="margin:0;font-size:1em;opacity:.7;">Notification History</h3>
+      <span class="btnRefreshHistory" style="font-size:.8em;opacity:.45;cursor:pointer;">&#8635; Refresh</span>
     </div>
 
-    <div class="updateStatus"
-         style="padding:.75em 1em;border-radius:4px;display:none;"></div>
+    <div class="historyList"></div>
 
   </div>
 </div>
