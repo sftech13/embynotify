@@ -48,8 +48,8 @@ namespace EmbyNotify.Plugin
                     {
                         // Normalize legacy stored values that may contain one or more
                         // layers of HTML encoding from Emby's request pipeline.
-                        Header    = Plugin.NormalizeMessageText(notification.Header),
-                        Text      = Plugin.NormalizeMessageText(notification.Text),
+                        Header    = Plugin.PrepareForEmbyDisplay(notification.Header),
+                        Text      = Plugin.PrepareForEmbyDisplay(notification.Text),
                         TimeoutMs = notification.TimeoutMs
                     };
 

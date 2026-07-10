@@ -107,8 +107,8 @@ namespace EmbyNotify.Plugin
 
                 var command = new MessageCommand
                 {
-                    Header    = normalizedHeader,
-                    Text      = normalizedText,
+                    Header    = PrepareForEmbyDisplay(normalizedHeader),
+                    Text      = PrepareForEmbyDisplay(normalizedText),
                     TimeoutMs = timeoutMs
                 };
 
@@ -162,6 +162,20 @@ namespace EmbyNotify.Plugin
             }
 
             return current;
+        }
+
+        internal static string PrepareForEmbyDisplay(string value)
+        {
+            // Emby's web client HTML-encodes DisplayMessage fields and then renders
+            // them as plain text. Use visually equivalent Unicode characters so the
+            // client cannot expose &amp;, &lt;, or &gt; in the popup. Convert common
+            // ASCII arrows first so they display naturally.
+            return NormalizeMessageText(value)
+                .Replace("->", "→")
+                .Replace("<-", "←")
+                .Replace("&", "＆")
+                .Replace("<", "＜")
+                .Replace(">", "＞");
         }
 
         internal async Task<InstallUpdateResult> InstallUpdateAsync()

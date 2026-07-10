@@ -4,6 +4,12 @@ All notable changes to EmbyNotify are listed here, newest first.
 
 ---
 
+## v1.5.3
+
+- Worked around Emby web client's double-escaping of popup text by using display-safe Unicode equivalents for arrows and HTML-sensitive characters
+
+---
+
 ## v1.5.2
 
 - Fixed nested HTML encoding that could still display entities such as `&gt;` literally in notifications
