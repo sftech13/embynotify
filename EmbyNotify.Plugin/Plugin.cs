@@ -86,12 +86,12 @@ namespace EmbyNotify.Plugin
                     return result;
                 }
 
-                // Emby's request pipeline may HTML-encode message fields (for example,
-                // ">" becomes "&gt;"). MessageCommand expects plain text, so decode once
-                // at the API boundary before persisting or sending it.
-                var normalizedHeader = WebUtility.HtmlDecode(
+                // Emby's request pipeline may HTML-encode message fields more than
+                // once. MessageCommand expects plain text, so fully normalize the
+                // values before persisting or sending them.
+                var normalizedHeader = NormalizeMessageText(
                     string.IsNullOrWhiteSpace(header) ? "Announcement" : header);
-                var normalizedText = WebUtility.HtmlDecode(text ?? "");
+                var normalizedText = NormalizeMessageText(text);
 
                 // Record for deferred delivery — best-effort, never blocks the send
                 PendingNotification notification = null;
@@ -145,6 +145,23 @@ namespace EmbyNotify.Plugin
             }
 
             return result;
+        }
+
+        internal static string NormalizeMessageText(string value)
+        {
+            var current = value ?? "";
+
+            // Decode nested entities such as &amp;gt; without risking an unbounded loop.
+            for (var i = 0; i < 8; i++)
+            {
+                var decoded = WebUtility.HtmlDecode(current);
+                if (decoded == current)
+                    break;
+
+                current = decoded;
+            }
+
+            return current;
         }
 
         internal async Task<InstallUpdateResult> InstallUpdateAsync()

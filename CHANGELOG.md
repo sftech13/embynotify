@@ -4,6 +4,12 @@ All notable changes to EmbyNotify are listed here, newest first.
 
 ---
 
+## v1.5.2
+
+- Fixed nested HTML encoding that could still display entities such as `&gt;` literally in notifications
+
+---
+
 ## v1.5.1
 
 - Fixed HTML entities such as `&gt;` appearing literally in notification messages

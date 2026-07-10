@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Controller.Plugins;
@@ -47,10 +46,10 @@ namespace EmbyNotify.Plugin
                 {
                     var command = new MessageCommand
                     {
-                        // Decode legacy stored values that may contain entities such
-                        // as &gt; from Emby's request pipeline.
-                        Header    = WebUtility.HtmlDecode(notification.Header),
-                        Text      = WebUtility.HtmlDecode(notification.Text),
+                        // Normalize legacy stored values that may contain one or more
+                        // layers of HTML encoding from Emby's request pipeline.
+                        Header    = Plugin.NormalizeMessageText(notification.Header),
+                        Text      = Plugin.NormalizeMessageText(notification.Text),
                         TimeoutMs = notification.TimeoutMs
                     };
 
