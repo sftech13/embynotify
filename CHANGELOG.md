@@ -4,6 +4,13 @@ All notable changes to EmbyNotify are listed here, newest first.
 
 ---
 
+## v1.5.1
+
+- Fixed HTML entities such as `&gt;` appearing literally in notification messages
+- Fixed inactive Emby sessions being marked as delivered immediately; offline users now remain pending until deferred delivery occurs
+
+---
+
 ## v1.5.0
 
 - **Notification history** added to the plugin config page — shows all active notifications with per-user delivery badges (green ✓ delivered, yellow pending) and a Dismiss button

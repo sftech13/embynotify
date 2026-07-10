@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -85,13 +86,18 @@ namespace EmbyNotify.Plugin
                     return result;
                 }
 
-                var normalizedHeader = string.IsNullOrWhiteSpace(header) ? "Announcement" : header;
+                // Emby's request pipeline may HTML-encode message fields (for example,
+                // ">" becomes "&gt;"). MessageCommand expects plain text, so decode once
+                // at the API boundary before persisting or sending it.
+                var normalizedHeader = WebUtility.HtmlDecode(
+                    string.IsNullOrWhiteSpace(header) ? "Announcement" : header);
+                var normalizedText = WebUtility.HtmlDecode(text ?? "");
 
                 // Record for deferred delivery — best-effort, never blocks the send
                 PendingNotification notification = null;
                 try
                 {
-                    notification = Store.Add(normalizedHeader, text ?? "", timeoutMs);
+                    notification = Store.Add(normalizedHeader, normalizedText, timeoutMs);
                     result.NotificationId = notification.Id;
                 }
                 catch (Exception ex)
@@ -102,12 +108,19 @@ namespace EmbyNotify.Plugin
                 var command = new MessageCommand
                 {
                     Header    = normalizedHeader,
-                    Text      = text ?? "",
+                    Text      = normalizedText,
                     TimeoutMs = timeoutMs
                 };
 
                 foreach (var session in sessions)
                 {
+                    // Emby retains inactive sessions in SessionManager.Sessions.
+                    // Sending to those sessions can complete successfully even though
+                    // no client is connected, which falsely records the user as having
+                    // received the notification.
+                    if (!session.IsActive)
+                        continue;
+
                     try
                     {
                         await sessionManager.SendMessageCommand(session.Id, session.Id, command, CancellationToken.None).ConfigureAwait(false);
