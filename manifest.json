@@ -8,8 +8,16 @@
     "overview": "Broadcast messages to all active Emby sessions.",
     "owner": "sftech13",
     "targetAbi": "4.8.0.0",
-    "timestamp": "2026-07-10T19:36:49Z",
+    "timestamp": "2026-07-10T19:42:36Z",
     "versions": [
+      {
+        "changelog": "- fix: decode nested notification entities - chore: update manifest for v1.5.1 - fix: correct notification text and delivery tracking - chore: update manifest for v1.5.0 - feat: add notification history to plugin config page, style update section - chore: update manifest for v1.4.0 - fix: make notification store best-effort, fix session send and message format - chore: update manifest for v1.3.0 - feat: add deferred notification delivery with per-user tracking - chore: update manifest for v1.2.0 ",
+        "checksum": "1b4edf95915e5cf83faaa11ce87331f7",
+        "sourceUrl": "https://github.com/sftech13/embynotify/releases/download/v1.5.2/EmbyNotify.Plugin.dll",
+        "targetAbi": "4.8.0.0",
+        "timestamp": "2026-07-10T19:42:36Z",
+        "version": "1.5.2.0"
+      },
       {
         "changelog": "- fix: correct notification text and delivery tracking - chore: update manifest for v1.5.0 - feat: add notification history to plugin config page, style update section - chore: update manifest for v1.4.0 - fix: make notification store best-effort, fix session send and message format - chore: update manifest for v1.3.0 - feat: add deferred notification delivery with per-user tracking - chore: update manifest for v1.2.0 - feat: add self-update mechanism via GitHub Releases API - chore: add plugin manifest and auto-update workflow ",
         "checksum": "c9bf3a7c0f153e75875f681aef70586a",
